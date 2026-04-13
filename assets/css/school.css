@@ -1,0 +1,226 @@
+/* School Page Styles */
+.school-hero {
+    margin-top: -70px;
+    padding-top: 140px;
+    padding-bottom: 60px;
+    background-size: cover;
+    background-position: center;
+    color: white;
+}
+
+.sh-title {
+    font-size: 2.8rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+}
+
+.sh-location {
+    font-size: 1.1rem;
+    color: #CBD5E1;
+}
+
+.sh-badge {
+    display: inline-block;
+    background: #10B981;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.sh-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.sh-stats .stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.sh-stats .val {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.sh-stats .lbl {
+    font-size: 0.85rem;
+    color: #CBD5E1;
+}
+
+/* Layout */
+.school-layout {
+    display: flex;
+    gap: 40px;
+    align-items: flex-start;
+}
+
+.school-main {
+    flex-grow: 1;
+}
+
+.school-card-sec {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.school-card-sec h2 {
+    font-size: 1.4rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 15px;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.og-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    background: #F8FAFC;
+    padding: 15px;
+    border-radius: var(--border-radius-md);
+}
+
+.og-item i {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+    margin-top: 2px;
+}
+
+.og-item .og-l {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.og-item .og-v {
+    display: block;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* Facilities Grid */
+.facilities-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.fac-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background: var(--bg-color);
+    padding: 12px;
+    border-radius: var(--border-radius-sm);
+}
+
+.text-primary { color: var(--primary-color); }
+.text-warning { color: #F59E0B; }
+
+/* Photo Gallery Grid */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.g-img {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: var(--transition-fast);
+}
+
+.g-img:hover {
+    transform: scale(1.02);
+}
+
+/* Sidebar Enquiry Form */
+.school-sidebar {
+    width: 380px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 90px;
+}
+
+.enquiry-widget {
+    background: var(--card-bg);
+    border-radius: var(--border-radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+}
+
+.ew-title {
+    font-size: 1.4rem;
+    color: var(--text-main);
+    margin-bottom: 5px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 6px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #CBD5E1;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+    outline: none;
+    font-family: inherit;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+}
+
+.bg-light { background: #F8FAFC; }
+.p-sm { padding: 10px; }
+.rounded { border-radius: 8px; }
+.m-0 { margin: 0; }
+
+.shadow-hover:hover {
+    box-shadow: 0 8px 15px rgba(37, 99, 235, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .school-layout {
+        flex-direction: column;
+    }
+    
+    .school-sidebar {
+        width: 100%;
+        position: static;
+        margin-top: 30px;
+    }
+    
+    .overview-grid, .facilities-grid, .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+}

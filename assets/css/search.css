@@ -1,0 +1,284 @@
+/* Search Page Styles */
+
+.search-header-bg {
+    background: var(--primary-color);
+    color: white;
+    padding: 60px 0 30px;
+    margin-top: -70px;
+    padding-top: 100px; /* Account for fixed nav */
+}
+
+.search-header-content h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.search-page {
+    margin-bottom: 80px;
+}
+
+.search-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+/* Sidebar */
+.search-filters {
+    width: 280px;
+    flex-shrink: 0;
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    padding: 20px;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-color);
+    position: sticky;
+    top: 90px;
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.filter-header h3 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+.clear-filters {
+    font-size: 0.85rem;
+    color: var(--primary-color);
+    font-weight: 500;
+}
+
+.filter-section {
+    margin-bottom: 25px;
+}
+
+.filter-section h4 {
+    font-size: 0.95rem;
+    color: var(--text-main);
+    margin-bottom: 12px;
+}
+
+.filter-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    outline: none;
+    transition: var(--transition-fast);
+}
+
+.filter-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Custom Checkbox */
+.custom-checkbox {
+    display: block;
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    user-select: none;
+}
+
+.custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.checkmark {
+    position: absolute;
+    top: 2px;
+    left: 0;
+    height: 18px;
+    width: 18px;
+    background-color: #F1F5F9;
+    border: 1px solid #CBD5E1;
+    border-radius: 4px;
+    transition: var(--transition-fast);
+}
+
+.custom-checkbox:hover input ~ .checkmark {
+    background-color: #E2E8F0;
+}
+
+.custom-checkbox input:checked ~ .checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.custom-checkbox input:checked ~ .checkmark:after {
+    display: block;
+}
+
+.custom-checkbox .checkmark:after {
+    left: 6px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.w-100 { width: 100%; }
+
+/* Main Results List */
+.search-results {
+    flex-grow: 1;
+}
+
+.school-list-card {
+    display: flex;
+    background: var(--card-bg);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+    transition: var(--transition-normal);
+}
+
+.school-list-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: #CBD5E1;
+}
+
+.list-img {
+    width: 280px;
+    flex-shrink: 0;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.list-content {
+    padding: 24px;
+    flex-grow: 1;
+}
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.list-header h2 {
+    font-size: 1.4rem;
+    color: var(--text-main);
+    margin-bottom: 5px;
+}
+
+.list-header .location {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+}
+
+.rating-badge {
+    background: #FEF08A;
+    color: #854D0E;
+    padding: 6px 12px;
+    border-radius: var(--border-radius-sm);
+    font-weight: 700;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.list-meta {
+    display: flex;
+    gap: 20px;
+    color: #475569;
+    font-size: 0.9rem;
+    flex-wrap: wrap;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.meta-item i {
+    color: var(--text-light);
+}
+
+.facilities-tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.tag {
+    background: #F1F5F9;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.list-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.compare-box { margin-bottom: 0; }
+.ml-sm { margin-left: 10px; }
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.pagination .p-active {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .search-layout {
+        flex-direction: column;
+    }
+    
+    .search-filters {
+        width: 100%;
+        position: static;
+    }
+    
+    .school-list-card {
+        flex-direction: column;
+    }
+    
+    .list-img {
+        width: 100%;
+        height: 200px;
+    }
+}

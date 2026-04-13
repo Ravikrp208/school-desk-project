@@ -1,0 +1,48 @@
+/* Enquiry Success Page Styles */
+
+.success-card {
+    padding: 50px 40px;
+    border-radius: var(--border-radius-xl);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
+
+.success-icon {
+    font-size: 5rem;
+    color: #10B981;
+    margin-bottom: 20px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.text-green { color: #10B981; }
+
+.lead-id-container {
+    background: #F8FAFC;
+    padding: 15px;
+    border-radius: var(--border-radius-md);
+    border: 1px dashed #CBD5E1;
+    display: inline-block;
+    min-width: 250px;
+}
+
+.lead-id-text {
+    font-size: 1.6rem;
+    color: var(--primary-color);
+    letter-spacing: 2px;
+}
+
+.whatsapp-alert {
+    background: #DCFCE7;
+    color: #166534;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid #BBF7D0;
+    display: flex;
+    align-items: center;
+    text-align: left;
+}
