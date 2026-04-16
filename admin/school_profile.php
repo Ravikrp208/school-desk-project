@@ -321,6 +321,9 @@ $schools = $schoolsStmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="enquiries.php" class="flex items-center gap-4 <?php echo basename($_SERVER['PHP_SELF']) == 'enquiries.php' ? 'nav-item-active' : 'nav-item'; ?> px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
                 <i class="fa-solid fa-comment-dots text-lg"></i> Enquiries
             </a>
+            <a href="sliders.php" class="flex items-center gap-4 <?php echo basename($_SERVER['PHP_SELF']) == 'sliders.php' ? 'nav-item-active' : 'nav-item'; ?> px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
+                <i class="fa-solid fa-images text-lg"></i> Homepage Slider
+            </a>
             <a href="school_profile.php" class="flex items-center gap-4 nav-item-active px-4 py-3 rounded-lg transition-all">
                 <i class="fa-solid fa-user-graduate text-lg"></i> School Profile
             </a>
