@@ -66,16 +66,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-xl mb-6">
                             <i class="fa-solid fa-envelope"></i>
                         </div>
-                        <h3 class="text-xl font-black text-slate-900 mb-2">Email Us</h3>
-                        <p class="text-slate-500 font-medium leading-relaxed">support@myschooldesk.com<br>admissions@myschooldesk.com</p>
+                        <h3 class="text-xl font-black text-slate-900 mb-2">Connect via Email</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none block mb-1">Founder / Admissions</p>
+                                <p class="text-slate-500 font-bold text-sm">hershil@myschooldesk.co.in</p>
+                            </div>
+                            <div>
+                                <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none block mb-1">General Enquiries</p>
+                                <p class="text-slate-500 font-bold text-sm">help@myschooldesk.co.in</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none block mb-1">CFO Desk</p>
+                                    <p class="text-slate-500 font-bold text-[11px]">cfo@myschooldesk.co.in</p>
+                                </div>
+                                <div>
+                                    <p class="text-[9px] font-black text-blue-600 uppercase tracking-widest leading-none block mb-1">HR & Careers</p>
+                                    <p class="text-slate-500 font-bold text-[11px]">hr@myschooldesk.co.in</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-white/70 backdrop-blur-xl p-8 rounded-[32px] border border-white/50 shadow-xl hover:-translate-y-2 transition-all duration-500">
                         <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-2xl flex items-center justify-center text-xl mb-6">
                             <i class="fa-solid fa-phone"></i>
                         </div>
-                        <h3 class="text-xl font-black text-slate-900 mb-2">Call Support</h3>
-                        <p class="text-slate-500 font-medium leading-relaxed">+91 98765 43210<br>Available Mon-Sat (9am - 6pm)</p>
+                        <h3 class="text-xl font-black text-slate-900 mb-2">Emergency Support</h3>
+                        <p class="text-slate-500 text-sm font-black tracking-widest">+91 63511 65654</p>
+                        <p class="text-slate-400 text-[10px] mt-2 font-medium leading-relaxed">Available 24/7 for urgent admission support.</p>
                     </div>
                 </div>
 

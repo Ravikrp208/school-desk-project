@@ -99,6 +99,26 @@ $facilities_to_compare = [
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100/50">
+                            <!-- Address -->
+                            <tr class="group hover:bg-slate-50/30 transition-colors">
+                                <td class="p-4 px-6 border-r border-slate-100/50">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-slate-50 text-slate-600 rounded-xl flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                                            <i class="fa-solid fa-map-location-dot"></i>
+                                        </div>
+                                        <span class="text-sm font-black text-slate-700">Address</span>
+                                    </div>
+                                </td>
+                                <?php foreach ($schools as $school): ?>
+                                    <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
+                                        <p class="text-[11px] font-bold text-slate-600 leading-relaxed mb-2"><?php echo htmlspecialchars($school['address']); ?></p>
+                                        <a href="https://www.google.com/maps/search/?api=1&query=<?php echo urlencode($school['name'] . ' ' . $school['address']); ?>" target="_blank" class="text-blue-600 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1">
+                                            <i class="fa-solid fa-up-right-from-square"></i> Open Map
+                                        </a>
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
+
                             <!-- Board -->
                             <tr class="group hover:bg-slate-50/30 transition-colors">
                                 <td class="p-4 px-6 border-r border-slate-100/50">
@@ -116,7 +136,7 @@ $facilities_to_compare = [
                                 <?php endforeach; ?>
                             </tr>
 
-                            <!-- Classes -->
+                            <!-- Classes offered -->
                             <tr class="group hover:bg-slate-50/30 transition-colors">
                                 <td class="p-4 px-6 border-r border-slate-100/50">
                                     <div class="flex items-center gap-4">
@@ -150,6 +170,65 @@ $facilities_to_compare = [
                                 <?php endforeach; ?>
                             </tr>
 
+                            <!-- Teacher Strength -->
+                            <tr class="group hover:bg-slate-50/30 transition-colors">
+                                <td class="p-4 px-6 border-r border-slate-100/50">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                                            <i class="fa-solid fa-chalkboard-user"></i>
+                                        </div>
+                                        <span class="text-sm font-black text-slate-700">Teachers Strength</span>
+                                    </div>
+                                </td>
+                                <?php foreach ($schools as $school): ?>
+                                    <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
+                                        <span class="text-sm font-black text-slate-900"><?php echo htmlspecialchars($school['teachers_strength'] ?? '30+'); ?> Faculty Mitglieder</span>
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
+
+                            <!-- Teacher Qualification -->
+                            <tr class="group hover:bg-slate-50/30 transition-colors">
+                                <td class="p-4 px-6 border-r border-slate-100/50">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-cyan-50 text-cyan-600 rounded-xl flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                                            <i class="fa-solid fa-certificate"></i>
+                                        </div>
+                                        <span class="text-sm font-black text-slate-700">Teacher Qualification</span>
+                                    </div>
+                                </td>
+                                <?php foreach ($schools as $school): ?>
+                                    <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Min / Max</p>
+                                        <span class="text-xs font-black text-slate-800"><?php echo htmlspecialchars($school['teacher_min_qual'] ?? 'B.Ed'); ?> / <?php echo htmlspecialchars($school['teacher_max_qual'] ?? 'M.Ed / Ph.D'); ?></span>
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
+
+                            <!-- Contact Details -->
+                            <tr class="group hover:bg-slate-50/30 transition-colors">
+                                <td class="p-4 px-6 border-r border-slate-100/50">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-sm shadow-sm group-hover:scale-110 transition-transform">
+                                            <i class="fa-solid fa-address-book"></i>
+                                        </div>
+                                        <span class="text-sm font-black text-slate-700">Contact Details</span>
+                                    </div>
+                                </td>
+                                <?php foreach ($schools as $school): ?>
+                                    <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
+                                        <div class="space-y-1">
+                                            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
+                                                <i class="fa-solid fa-phone text-[10px] opacity-40"></i> <?php echo htmlspecialchars($school['contact_phone']); ?>
+                                            </p>
+                                            <p class="text-xs font-bold text-slate-600 flex items-center gap-2">
+                                                <i class="fa-solid fa-envelope text-[10px] opacity-40"></i> <?php echo htmlspecialchars($school['contact_email']); ?>
+                                            </p>
+                                        </div>
+                                    </td>
+                                <?php endforeach; ?>
+                            </tr>
+
                             <!-- Parent Rating -->
                             <tr class="group hover:bg-slate-50/30 transition-colors">
                                 <td class="p-4 px-6 border-r border-slate-100/50">
@@ -176,8 +255,26 @@ $facilities_to_compare = [
                                 <?php endforeach; ?>
                             </tr>
 
-                            <!-- Facilities -->
-                            <?php foreach ($facilities_to_compare as $fac_name => $fac_icon): ?>
+                            <!-- Facilities Selection -->
+                            <tr class="bg-slate-50/50">
+                                <td colspan="<?php echo count($schools) + 1; ?>" class="p-4 px-8">
+                                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Detailed Facilities Comparison</h4>
+                                </td>
+                            </tr>
+
+                            <?php 
+                            $detailed_facilities = [
+                                'AC Classroom' => 'fa-snowflake',
+                                'Transport' => 'fa-bus',
+                                'Books & Uniforms' => 'fa-shirt',
+                                'Playground' => 'fa-basketball',
+                                'Smart Classes' => 'fa-tv',
+                                'Science Lab' => 'fa-flask-vial',
+                                'Library' => 'fa-book-open',
+                                'CCTV Monitoring' => 'fa-video',
+                                'Activity Room' => 'fa-palette'
+                            ];
+                            foreach ($detailed_facilities as $fac_name => $fac_icon): ?>
                             <tr class="group hover:bg-slate-50/30 transition-colors">
                                 <td class="p-4 px-6 border-r border-slate-100/50">
                                     <div class="flex items-center gap-4">
@@ -188,7 +285,7 @@ $facilities_to_compare = [
                                     </div>
                                 </td>
                                 <?php foreach ($schools as $school): 
-                                    $has_fac = str_contains(strtolower($school['facilities'] ?? ''), strtolower($fac_name));
+                                    $has_fac = str_contains(strtolower($school['facilities'] ?? ''), strtolower($fac_name)) || str_contains(strtolower($school['facilities'] ?? ''), strtolower(explode(' ', $fac_name)[0]));
                                 ?>
                                     <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
                                         <?php if ($has_fac): ?>
@@ -210,9 +307,10 @@ $facilities_to_compare = [
                                 <td class="p-4 px-6 border-r border-slate-100/50"></td>
                                 <?php foreach ($schools as $school): ?>
                                     <td class="p-4 px-6 border-r border-slate-100/50 last:border-r-0">
-                                        <a href="school.php?id=<?php echo $school['id']; ?>" class="w-max mx-auto bg-slate-900 hover:bg-black text-white font-black py-2.5 px-6 rounded-lg flex items-center justify-center text-[10px] uppercase tracking-widest shadow-lg transition-all hover:scale-[1.02] active:scale-95">
+                                        <button onclick="openEnquiryModal(<?php echo $school['id']; ?>, '<?php echo addslashes($school['name']); ?>')"
+                                            class="w-max mx-auto bg-slate-900 hover:bg-black text-white font-black py-2.5 px-6 rounded-lg flex items-center justify-center text-[10px] uppercase tracking-widest shadow-lg transition-all hover:scale-[1.02] active:scale-95">
                                             Enquire Now
-                                        </a>
+                                        </button>
                                     </td>
                                 <?php endforeach; ?>
                             </tr>

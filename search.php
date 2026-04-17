@@ -147,6 +147,24 @@ if (empty($schools) && !empty($params)) {
                             </div>
                         </div>
 
+                        <!-- Class Filter -->
+                        <div>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">CLASSES</label>
+                            <div class="relative group">
+                                <label class="absolute left-4 top-2 text-[8px] font-black text-blue-600/40 uppercase tracking-widest transition-all">Target Grade</label>
+                                <select name="class" onchange="this.form.submit()"
+                                    class="w-full bg-slate-50 border-none rounded-xl px-4 pt-5 pb-2 text-xs font-black text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none cursor-pointer">
+                                    <option value="">All Classes</option>
+                                    <?php foreach (msd_class_options() as $c): ?>
+                                        <option value="<?php echo strtolower(str_replace(' ', '-', $c)); ?>" <?php echo (strtolower(str_replace(' ', '-', $c)) === strtolower($class)) ? 'selected' : ''; ?>>
+                                            <?php echo $c; ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 pointer-events-none"></i>
+                            </div>
+                        </div>
+
                         <!-- Annual Fees Range -->
                         <div>
                             <label
@@ -270,7 +288,7 @@ if (empty($schools) && !empty($params)) {
                                             <div
                                                 class="absolute top-4 left-4 bg-white shadow-xl px-3 py-1.5 rounded-lg border border-white/50 flex items-center gap-2">
                                                 <div
-                                                    class="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-[10px]">
+                                                    class="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center text-white text-[10px]">
                                                     <i class="fa-solid fa-check"></i>
                                                 </div>
                                                 <span
@@ -356,12 +374,17 @@ if (empty($schools) && !empty($params)) {
                                             </label>
                                         </div>
 
-                                        <div class="flex-1"></div>
-
-                                        <a href="school.php?id=<?php echo $school['id']; ?>"
-                                            class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-2 px-5 rounded-lg shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 h-10 flex items-center justify-center hover:scale-105 active:scale-95 whitespace-nowrap text-xs">
-                                            Send Enquiry
-                                        </a>
+                                        <div class="flex items-center gap-2">
+                                            <button onclick="toggleSchoolSelection(<?php echo $school['id']; ?>, '<?php echo addslashes($school['name']); ?>')"
+                                                class="select-school-btn bg-slate-50 text-slate-900 font-black py-2 px-4 rounded-lg text-xs transition-all hover:bg-slate-200"
+                                                data-id="<?php echo $school['id']; ?>">
+                                                <i class="fa-solid fa-plus mr-2"></i> Select
+                                            </button>
+                                            <button onclick="openEnquiryModal(<?php echo $school['id']; ?>, '<?php echo addslashes($school['name']); ?>')"
+                                                class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black py-2 px-5 rounded-lg shadow-lg shadow-blue-600/20 hover:shadow-blue-600/40 transition-all duration-300 h-10 flex items-center justify-center hover:scale-105 active:scale-95 whitespace-nowrap text-xs">
+                                                Send Enquiry
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -440,6 +463,24 @@ if (empty($schools) && !empty($params)) {
                                 </div>
                             </label>
                         <?php endforeach; ?>
+                    </div>
+                </div>
+
+                <!-- Class Filter -->
+                <div>
+                    <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">CLASSES</label>
+                    <div class="relative group">
+                        <label class="absolute left-4 top-2 text-[8px] font-black text-blue-600/40 uppercase tracking-widest transition-all">Target Grade</label>
+                        <select name="class"
+                            class="w-full bg-slate-50 border-none rounded-xl px-4 pt-5 pb-2 text-xs font-black text-slate-700 outline-none focus:ring-2 focus:ring-blue-500/20 appearance-none !bg-none cursor-pointer">
+                            <option value="">All Classes</option>
+                            <?php foreach (msd_class_options() as $c): ?>
+                                <option value="<?php echo strtolower(str_replace(' ', '-', $c)); ?>" <?php echo (strtolower(str_replace(' ', '-', $c)) === strtolower($class)) ? 'selected' : ''; ?>>
+                                    <?php echo $c; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-slate-300 pointer-events-none"></i>
                     </div>
                 </div>
 

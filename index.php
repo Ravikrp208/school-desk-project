@@ -59,7 +59,7 @@ $home_sliders = $stmt->fetchAll();
         <div class="flex flex-col lg:flex-row items-center gap-6 lg:justify-between">
             <!-- Left Content -->
             <div class="lg:w-[45%] text-left lg:pl-4">
-                <span class="inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-lg uppercase tracking-widest mb-6">ADMISSIONS 2026-27</span>
+                <span class="inline-block bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-lg uppercase tracking-widest mb-6">ADMISSIONS <?php echo $admission_year; ?></span>
                 <h1 class="text-4xl md:text-5xl xl:text-6xl font-black text-slate-900 mb-6 leading-[1.1]">
                     Find the Perfect <span class="text-blue-600 italic">Future</span> for Your Child.
                 </h1>
@@ -366,8 +366,12 @@ $home_sliders = $stmt->fetchAll();
                 <div class="px-8 pb-8 pt-4">
                     <a href="school.php?id=<?php echo $school['id']; ?>" class="block group/title">
                         <h3
-                            class="text-2xl font-black text-slate-900 mb-2 truncate group-hover/title:text-blue-600 transition-colors">
-                            <?php echo htmlspecialchars($school['name']); ?></h3>
+                            class="text-2xl font-black text-slate-900 mb-2 truncate group-hover/title:text-blue-600 transition-colors flex items-center gap-2">
+                            <?php echo htmlspecialchars($school['name']); ?>
+                            <?php if($school['is_verified']): ?>
+                                <i class="fa-solid fa-circle-check text-blue-500 text-lg" title="Verified School"></i>
+                            <?php endif; ?>
+                        </h3>
                     </a>
                     <p class="text-slate-400 text-sm font-bold flex items-center gap-2 mb-8">
                         <i class="fa-solid fa-location-dot text-blue-500/50"></i>
@@ -382,8 +386,13 @@ $home_sliders = $stmt->fetchAll();
                                 class="text-blue-600 font-black text-xl"><?php echo msd_format_currency($school['fees_min']); ?>
                                 <span class="text-xs font-bold text-slate-400">/ yr</span></span>
                         </div>
-                        <a href="school.php?id=<?php echo $school['id']; ?>"
-                            class="bg-slate-50 text-slate-900 font-black text-sm py-3 px-6 rounded-lg hover:bg-blue-600 hover:text-white transition-all">Details</a>
+                        <div class="flex gap-2">
+                            <button onclick="toggleSchoolSelection(<?php echo $school['id']; ?>, '<?php echo addslashes($school['name']); ?>')"
+                                class="select-school-btn bg-white border border-slate-100 text-slate-900 font-black text-[10px] uppercase tracking-widest py-3 px-6 rounded-xl hover:bg-slate-50 transition-all shadow-sm"
+                                data-id="<?php echo $school['id']; ?>">+ Select</button>
+                            <button onclick="openEnquiryModal(<?php echo $school['id']; ?>, '<?php echo addslashes($school['name']); ?>')"
+                                class="bg-slate-900 text-white font-black text-[10px] uppercase tracking-widest py-3 px-6 rounded-xl hover:bg-blue-600 transition-all shadow-sm">Enquire</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -416,7 +425,7 @@ $home_sliders = $stmt->fetchAll();
 
             <!-- Feature Highlights matching the image -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mt-16 px-4">
-                <div class="group">
+                <a href="compare.php" class="group block">
                     <div
                         class="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-500/20 group-hover:-rotate-6 transition-all">
                         <i class="fa-solid fa-layer-group text-2xl"></i>
@@ -424,8 +433,8 @@ $home_sliders = $stmt->fetchAll();
                     <h3 class="text-xl font-black text-slate-900 mb-2">Compare & Choose</h3>
                     <p class="text-sm text-slate-500 font-medium">Side-by-side analysis of curriculum, fees, and safety.
                     </p>
-                </div>
-                <div class="group">
+                </a>
+                <a href="search.php?sort=rating_desc" class="group block">
                     <div
                         class="w-16 h-16 bg-blue-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-400/20 group-hover:rotate-6 transition-all">
                         <i class="fa-solid fa-star-half-stroke text-2xl"></i>
@@ -433,8 +442,8 @@ $home_sliders = $stmt->fetchAll();
                     <h3 class="text-xl font-black text-slate-900 mb-2">Trusted Reviews</h3>
                     <p class="text-sm text-slate-500 font-medium">100% verified community feedback from real parents.
                     </p>
-                </div>
-                <div class="group">
+                </a>
+                <a href="javascript:void(0)" onclick="openExpertModal()" class="group block">
                     <div
                         class="w-16 h-16 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-500/20 group-hover:-rotate-6 transition-all">
                         <i class="fa-solid fa-headset text-2xl"></i>
@@ -442,14 +451,14 @@ $home_sliders = $stmt->fetchAll();
                     <h3 class="text-xl font-black text-slate-900 mb-2">Expert Counseling</h3>
                     <p class="text-sm text-slate-500 font-medium">Free expert guidance for your child's perfect school
                         fit.</p>
-                </div>
+                </a>
             </div>
         </div>
     </div>
 </section>
 
 <!-- Admissions Assistance Banner -->
-<section class="container mx-auto px-4 py-12">
+<section id="expert-counseling" class="container mx-auto px-4 py-12">
     <div
         class="bg-[#1D4ED8] rounded-3xl overflow-hidden relative flex flex-col md:flex-row items-center justify-between text-white p-12 md:p-16">
         <div class="relative z-10 md:w-1/2">
@@ -464,26 +473,120 @@ $home_sliders = $stmt->fetchAll();
                 trusted school discovery platform.
             </p>
             <div class="flex flex-wrap gap-4">
-                <a href="#"
-                    class="bg-white text-blue-700 font-black py-4 px-10 rounded-xl shadow-lg hover:scale-105 transition-all text-lg">Apply
-                    Now</a>
-                <a href="#"
+                <a href="javascript:void(0)" onclick="openExpertModal()"
+                    class="bg-white text-blue-700 font-black py-4 px-10 rounded-xl shadow-lg hover:scale-105 transition-all text-lg flex items-center gap-3">
+                    <i class="fa-solid fa-calendar-check"></i> Book a School Visit
+                </a>
+                <a href="javascript:void(0)" onclick="openExpertModal()"
                     class="border-2 border-white/50 bg-white/10 backdrop-blur-sm text-white font-black py-4 px-10 rounded-xl hover:bg-white/20 transition-all text-lg">Speak
                     to an expert</a>
             </div>
         </div>
         <div class="md:w-1/2 mt-12 md:mt-0 flex justify-end">
-            <img src="assets/images/consultant.jpg"
-                class="w-full max-w-md object-cover rounded-2xl shadow-2xl transform md:translate-x-4 md:rotate-2 hover:rotate-0 transition-all duration-500"
-                alt="Indian Admission Consultant">
+            <a href="javascript:void(0)" onclick="openExpertModal()" class="relative group block max-w-md">
+                <img src="assets/images/consultant.jpg"
+                    class="w-full h-full object-cover rounded-2xl shadow-2xl transform md:translate-x-4 md:rotate-2 group-hover:rotate-0 transition-all duration-500"
+                    alt="Indian Admission Consultant">
+                <div class="absolute inset-0 bg-blue-600/20 group-hover:bg-transparent transition-colors rounded-2xl"></div>
+                <div class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-4 group-hover:translate-y-0 shadow-2xl">
+                    <p class="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-1">Schedule Now</p>
+                    <p class="text-slate-900 font-black">Click here to Book a Visit</p>
+                </div>
+            </a>
         </div>
     </div>
 </section>
 
 
+<!-- Expert Counseling Modal -->
+<div id="expert-modal" class="fixed inset-0 z-[3000] hidden overflow-y-auto">
+    <div class="fixed inset-0 bg-slate-900/80 backdrop-blur-xl" onclick="closeExpertModal()"></div>
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative w-full max-w-lg bg-white rounded-[48px] shadow-2xl p-10 md:p-16 border border-white/20 animate-fade-in-up">
+            <button onclick="closeExpertModal()" class="absolute top-8 right-8 w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            
+            <div class="text-center mb-10">
+                <div class="w-20 h-20 bg-blue-600 text-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-blue-500/20">
+                    <i class="fa-solid fa-headphones-simple text-3xl"></i>
+                </div>
+                <h2 class="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tighter">Talk to an Expert</h2>
+                <p class="text-slate-500 font-medium">Share your details and our admission expert will call you back within 24 hours.</p>
+            </div>
+            
+            <form action="expert_callback.php" method="POST" class="space-y-6">
+                <div class="relative group">
+                    <label class="absolute left-6 top-3 text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all">Parent Full Name</label>
+                    <input type="text" name="parent_name" required 
+                        class="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 rounded-2xl px-6 pt-8 pb-3 text-sm font-bold text-slate-900 outline-none transition-all"
+                        placeholder="John Doe">
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="relative group">
+                        <label class="absolute left-6 top-3 text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all">Mobile Number</label>
+                        <input type="tel" name="mobile" required 
+                            class="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 rounded-2xl px-6 pt-8 pb-3 text-sm font-bold text-slate-900 outline-none transition-all"
+                            placeholder="9999999999">
+                    </div>
+                    <div class="relative group">
+                        <label class="absolute left-6 top-3 text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all">Email Address</label>
+                        <input type="email" name="email" required 
+                            class="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 rounded-2xl px-6 pt-8 pb-3 text-sm font-bold text-slate-900 outline-none transition-all"
+                            placeholder="john@example.com">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="relative group">
+                        <label class="absolute left-6 top-3 text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all">Your Location</label>
+                        <input type="text" name="location" required 
+                            class="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 rounded-2xl px-6 pt-8 pb-3 text-sm font-bold text-slate-900 outline-none transition-all"
+                            placeholder="e.g. Vadodara">
+                    </div>
+                    <div class="relative group">
+                        <label class="absolute left-6 top-3 text-[10px] font-black text-blue-600 uppercase tracking-widest transition-all">Applying for Standard</label>
+                        <select name="child_class" required 
+                            class="w-full bg-slate-50 border-2 border-transparent focus:border-blue-600 rounded-2xl px-6 pt-8 pb-3 text-sm font-bold text-slate-900 outline-none transition-all appearance-none cursor-pointer">
+                            <option value="">Select Grade</option>
+                            <?php foreach(msd_class_options() as $c): ?>
+                                <option value="<?php echo $c; ?>"><?php echo $c; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <i class="fa-solid fa-chevron-down absolute right-6 top-1/2 translate-y-2 text-slate-300 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <button type="submit" 
+                    class="w-full bg-slate-900 text-white font-black py-5 rounded-2xl shadow-xl hover:bg-black hover:scale-[1.02] active:scale-95 transition-all text-sm uppercase tracking-widest mt-4">
+                    Get a Callback Now
+                </button>
+            </form>
+            
+            <p class="text-[10px] text-center text-slate-400 font-bold uppercase tracking-widest mt-8">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Your data is 100% secure & private
+            </p>
+        </div>
+    </div>
+</div>
+
+
 <!-- Swiper JS -->
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
+    function openExpertModal() {
+        const modal = document.getElementById('expert-modal');
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeExpertModal() {
+        const modal = document.getElementById('expert-modal');
+        modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         // Initialize Hero Slider
         if (document.querySelector('.hero-swiper')) {

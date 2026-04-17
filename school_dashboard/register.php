@@ -43,7 +43,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                 $stmtUser->execute([$school_name, $username, $email, $hashed_password, $phone]);
                 $user_id = $pdo->lastInsertId();
 
-                // 2. Create School Listing
+                // 2. Handle Registration Certificate Upload
+                $reg_certificate = null;
+                if (!empty($_FILES['reg_certificate']['name'])) {
+                    $uploadDir = '../uploads/certificates/';
+                    if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
+                    
+                    $ext = pathinfo($_FILES['reg_certificate']['name'], PATHINFO_EXTENSION);
+                    $fileName = uniqid('cert_') . '.' . $ext;
+                    $targetPath = $uploadDir . $fileName;
+                    if (move_uploaded_file($_FILES['reg_certificate']['tmp_name'], $targetPath)) {
+                        $reg_certificate = 'uploads/certificates/' . $fileName;
+                    }
+                }
+
+                // 3. Create School Listing
                 // Generate Slug
                 $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $school_name)));
                 $slug .= '-' . strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $district)));
@@ -55,8 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                     $slug .= '-' . rand(100, 999);
                 }
 
-                $stmtSchool = $pdo->prepare("INSERT INTO schools (user_id, name, slug, state, city, contact_email, contact_phone, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')");
-                $stmtSchool->execute([$user_id, $school_name, $slug, $state, $district, $email, $phone]);
+                $stmtSchool = $pdo->prepare("INSERT INTO schools (user_id, name, slug, state, city, contact_email, contact_phone, reg_certificate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+                $stmtSchool->execute([$user_id, $school_name, $slug, $state, $district, $email, $phone, $reg_certificate]);
 
                 // Commit Transaction
                 $pdo->commit();
@@ -122,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
             </div>
         <?php endif; ?>
 
-        <form method="POST" class="space-y-6">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="col-span-2 space-y-2">
                     <label class="text-[10px] font-black text-blue-200/40 uppercase tracking-widest ml-1">School Name</label>
@@ -151,6 +165,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register'])) {
                     <select id="district" name="district" required disabled class="form-input rounded-2xl px-6 py-4 font-bold outline-none appearance-none disabled:opacity-50">
                         <option value="">Select District</option>
                     </select>
+                </div>
+
+                <div class="col-span-2 space-y-2">
+                    <label class="text-[10px] font-black text-blue-200/40 uppercase tracking-widest ml-1">School Registration Certificate (PDF/Image)</label>
+                    <input type="file" name="reg_certificate" accept=".pdf,.jpg,.jpeg,.png" class="form-input rounded-2xl px-6 py-4 font-bold outline-none">
                 </div>
 
                 <div class="space-y-2">

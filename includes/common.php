@@ -1,4 +1,21 @@
 <?php
+function msd_get_setting(PDO $pdo, string $key, string $default = ''): string
+{
+    try {
+        $stmt = $pdo->prepare('SELECT value FROM settings WHERE key_name = ?');
+        $stmt->execute([$key]);
+        $val = $stmt->fetchColumn();
+        return $val !== false ? $val : $default;
+    } catch (Exception $e) {
+        return $default;
+    }
+}
+
+function msd_update_setting(PDO $pdo, string $key, string $value): bool
+{
+    $stmt = $pdo->prepare('INSERT INTO settings (key_name, value) VALUES (?, ?) ON DUPLICATE KEY UPDATE value = ?');
+    return $stmt->execute([$key, $value, $value]);
+}
 
 function msd_class_options(): array
 {
@@ -9,6 +26,13 @@ function msd_class_options(): array
         'Sr KG',
         'Class 1',
         'Class 2',
+        'Class 3',
+        'Class 4',
+        'Class 5',
+        'Class 6',
+        'Class 7',
+        'Class 8',
+        'Class 9',
         'Class 10',
         'Class 11 Science',
         'Class 11 Commerce',
@@ -22,6 +46,16 @@ function msd_class_options(): array
 function msd_facility_options(): array
 {
     return [
+        'Dance Room' => 'fa-music',
+        'Auditorium' => 'fa-landmark',
+        'Swimming Pool' => 'fa-person-swimming',
+        'Horse Riding' => 'fa-horse',
+        'Smart Classroom' => 'fa-chalkboard-user',
+        'Sickbay Room' => 'fa-heart-pulse',
+        'Canteen' => 'fa-utensils',
+        'Comprehensive Counseling' => 'fa-headset',
+        'Books Provided' => 'fa-book',
+        'Uniform' => 'fa-shirt',
         'Play Area' => 'fa-football',
         'Library' => 'fa-book-open',
         'Art Studio' => 'fa-palette',

@@ -4,8 +4,12 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 require_once 'config.php';
+require_once 'includes/common.php';
 $base_url = "/myschooldesk";
 $current_page = basename($_SERVER['PHP_SELF']);
+
+$primary_color = msd_get_setting($pdo, 'primary_color', '#2563eb');
+$admission_year = msd_get_setting($pdo, 'admission_year', '2026-27');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -26,6 +30,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
         tailwind.config = {
             theme: {
                 extend: {
+                    colors: {
+                        primary: '<?php echo $primary_color; ?>',
+                    },
                     fontFamily: {
                         sans: ['Plus Jakarta Sans', 'sans-serif'],
                     },
@@ -33,6 +40,15 @@ $current_page = basename($_SERVER['PHP_SELF']);
             },
         }
     </script>
+    <style>
+        :root {
+            --primary-color: <?php echo $primary_color; ?>;
+        }
+        .text-primary { color: var(--primary-color) !important; }
+        .bg-primary { background-color: var(--primary-color) !important; }
+        .border-primary { border-color: var(--primary-color) !important; }
+        .hover\:bg-primary:hover { background-color: var(--primary-color) !important; }
+    </style>
     <!-- Custom Vanilla CSS -->
     <link rel="stylesheet" href="<?php echo $base_url; ?>/assets/css/style.css">
     <?php if (isset($extra_css))
@@ -59,8 +75,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <a href="<?php echo $base_url; ?>/compare.php"
                     class="text-gray-600 font-bold hover:text-[#1D4ED8] transition-all relative py-2 <?php echo ($current_page == 'compare.php') ? 'text-[#1D4ED8] active-link' : ''; ?>">Compare</a>
                 
-                <!-- Mobile Only Login Buttons (shown in dropdown) -->
+                <!-- Mobile Only Login & Register Buttons -->
                 <div class="flex flex-col gap-4 mt-6 pt-6 border-t border-gray-100 md:hidden w-full items-center">
+                    <a href="<?php echo $base_url; ?>/register_school.php"
+                        class="w-full bg-white border-2 border-blue-600 text-blue-600 text-center font-black py-4 rounded-full text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        Register Your School
+                    </a>
                     <a href="<?php echo $base_url; ?>/school_dashboard"
                         class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 text-white text-center font-black py-4 rounded-full shadow-lg shadow-blue-500/20 text-xs uppercase tracking-widest active:scale-95 transition-all flex items-center justify-center gap-2">
                         <i class="fa-solid fa-graduation-cap"></i>
@@ -75,11 +96,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
 
             <div class="flex items-center gap-6">
-                <!-- Desktop Login Buttons -->
+                <!-- Desktop Login & Register Buttons -->
+                <a href="<?php echo $base_url; ?>/register_school.php"
+                    class="hidden md:block bg-white text-blue-600 border-2 border-blue-600 font-extrabold px-6 py-2 rounded-xl hover:bg-blue-600 hover:text-white transition-all active:scale-95 text-sm uppercase tracking-wide">Register School</a>
                 <a href="<?php echo $base_url; ?>/school_dashboard"
                     class="hidden md:block bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-extrabold px-6 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 hover:scale-105 transition-all active:scale-95 text-sm uppercase tracking-wide">School Login</a>
                 <a href="<?php echo $base_url; ?>/admin"
-                    class="hidden md:block bg-gradient-to-r from-[#FF8008] to-[#FFC837] text-white font-extrabold px-6 py-2.5 rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-105 transition-all active:scale-95 text-sm uppercase tracking-wide">Admin Login</a>
+                    class="hidden md:block bg-gradient-to-r from-[#FF8008] to-[#FFC837] text-white font-extrabold px-6 py-2.5 rounded-xl shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-105 transition-all active:scale-95 text-sm uppercase tracking-wide">Admin</a>
                 
                 <button class="menu-btn block md:hidden text-3xl text-gray-900 border-none bg-transparent cursor-pointer z-[2100]">
                     <i class="fa-solid fa-bars"></i>
@@ -117,8 +140,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             
             <div class="w-full h-px bg-gray-100 my-4"></div>
             
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 px-2">Partner Portals</p>
-            
+            <a href="<?php echo $base_url; ?>/register_school.php" class="w-full bg-white border-2 border-blue-600 text-blue-600 p-5 rounded-full flex items-center justify-center gap-3 active:scale-95 transition-all group">
+                <i class="fa-solid fa-plus-circle text-lg"></i>
+                <span class="text-sm font-black uppercase tracking-wider">Register Your School</span>
+            </a>
+
             <a href="<?php echo $base_url; ?>/school_dashboard" class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 p-5 rounded-full flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20 active:scale-95 transition-all text-white group">
                 <i class="fa-solid fa-graduation-cap text-lg"></i>
                 <span class="text-sm font-black uppercase tracking-wider">School Partner Login</span>

@@ -19,15 +19,31 @@ $pendingLeads = (int)$pdo->query("SELECT COUNT(*) FROM enquiry_school_mapping WH
 $unreadNotifsCount = (int)$pdo->query("SELECT COUNT(*) FROM notifications WHERE is_read = 0")->fetchColumn();
 $recentNotifs = $pdo->query("SELECT * FROM notifications WHERE is_read = 0 ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
-// Fetch all enquiries with their mapped schools
+// Fetch all enquiries with their mapped schools and multi-school count
 $enquiries = $pdo->query(
-    "SELECT e.*, GROUP_CONCAT(CONCAT(s.name, ' (', esm.admission_status, ')') SEPARATOR ', ') as school_list 
+    "SELECT e.*, 
+            GROUP_CONCAT(CONCAT(s.name, ' (', esm.admission_status, ')') SEPARATOR ', ') as school_list,
+            GROUP_CONCAT(CONCAT(s.id, '::', s.name, '::', esm.admission_status, '::', IFNULL(esm.follow_up_notes, '')) SEPARATOR '|||') as mapping_details,
+            COUNT(esm.school_id) as school_count
      FROM enquiries e 
      LEFT JOIN enquiry_school_mapping esm ON e.id = esm.enquiry_id 
      LEFT JOIN schools s ON esm.school_id = s.id 
      GROUP BY e.id 
      ORDER BY e.created_at DESC"
 )->fetchAll();
+
+// Handle Follow-up Update
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_followup'])) {
+    $enqId = (int)$_POST['enquiry_id'];
+    $schoolId = (int)$_POST['school_id'];
+    $status = $_POST['admission_status'];
+    $notes = trim($_POST['follow_up_notes']);
+
+    $stmt = $pdo->prepare("UPDATE enquiry_school_mapping SET admission_status = ?, follow_up_notes = ? WHERE enquiry_id = ? AND school_id = ?");
+    $stmt->execute([$status, $notes, $enqId, $schoolId]);
+    header("Location: enquiries.php?msg=updated");
+    exit;
+}
 
 ?>
 <!DOCTYPE html>
@@ -82,6 +98,9 @@ $enquiries = $pdo->query(
             </a>
             <a href="school_profile.php" class="flex items-center gap-4 nav-item px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
                 <i class="fa-solid fa-user-graduate text-lg"></i> School Profile
+            </a>
+            <a href="settings.php" class="flex items-center gap-4 nav-item px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
+                <i class="fa-solid fa-gear text-lg"></i> Global Settings
             </a>
             <a href="logout.php" class="flex items-center gap-4 nav-item px-4 py-3 hover:bg-red-50 hover:text-red-500 rounded-lg transition-all">
                 <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i> Logout
@@ -218,8 +237,15 @@ $enquiries = $pdo->query(
                            placeholder="Search leads or schools...">
                 </div>
 
-                <div class="flex justify-end order-last md:order-none">
-                    <button class="w-full sm:w-auto bg-[#F4F7FE] text-[#4318FF] text-[9px] font-extrabold px-5 py-2.5 rounded-xl uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm">Export Report</button>
+                <div class="flex flex-wrap md:flex-nowrap justify-end gap-3 order-last md:order-none">
+                    <select id="statusFilter" onchange="filterEnquiries()" class="bg-[#F4F7FE] border-none rounded-xl text-[10px] font-extrabold px-4 py-2.5 uppercase tracking-widest text-[#4318FF] cursor-pointer">
+                        <option value="">All Statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="admission_done">Admission Done</option>
+                        <option value="not_converted">Not Converted</option>
+                        <option value="multi">Multiple Schools</option>
+                    </select>
+                    <a href="export_enquiries.php" class="bg-white border border-[#4318FF] text-[#4318FF] text-[9px] font-extrabold px-5 py-2.5 rounded-xl uppercase tracking-widest hover:bg-[#4318FF] hover:text-white transition-all shadow-sm">Export Report</a>
                 </div>
             </div>
 
@@ -231,14 +257,14 @@ $enquiries = $pdo->query(
                             <th class="pb-3 px-4">PARENT & CHILD</th>
                             <th class="pb-3 px-4">CONTACT INFO</th>
                             <th class="pb-3 px-4">APPLIED SCHOOLS</th>
-                            <th class="pb-3 px-4 text-right pr-6">DATE</th>
+                            <th class="pb-3 px-4 text-right pr-6">GENERATED AT</th>
                         </tr>
                     </thead>
                     <tbody id="enquiryTableBody" class="divide-y divide-gray-50">
                         <?php foreach($enquiries as $enq): ?>
-                        <tr class="group hover:bg-gray-50/50 transition-all">
+                        <tr class="group hover:bg-gray-50/50 transition-all cursor-pointer" onclick="openLeadDetails(<?php echo htmlspecialchars(json_encode($enq)); ?>)">
                             <td class="py-5 px-4">
-                                <span class="bg-[#F4F7FE] text-[#4318FF] font-extrabold px-3 py-1.5 rounded-lg text-xs tracking-tight group-hover:bg-[#4318FF] group-hover:text-white transition-colors"><?php echo $enq['lead_id']; ?></span>
+                                <span class="bg-[#F4F7FE] text-[#4318FF] font-extrabold px-3 py-1.5 rounded-lg text-xs tracking-tight group-hover:bg-[#4318FF] group-hover:text-white transition-colors">#LD-<?php echo substr($enq['lead_id'], -4); ?></span>
                             </td>
                             <td class="py-5 px-4">
                                 <h4 class="text-[15px] font-bold text-[#1B2559]"><?php echo htmlspecialchars($enq['parent_name']); ?></h4>
@@ -259,10 +285,15 @@ $enquiries = $pdo->query(
                                 </div>
                             </td>
                             <td class="py-6 px-4">
-                                <p class="text-[11px] font-bold text-slate-600 leading-relaxed uppercase tracking-tight flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                                    <?php echo htmlspecialchars($enq['school_list'] ?: 'N/A'); ?>
-                                </p>
+                                <div class="flex flex-col gap-1.5">
+                                    <p class="text-[11px] font-bold text-slate-600 leading-relaxed uppercase tracking-tight flex items-center gap-2">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                        <?php echo htmlspecialchars($enq['school_list'] ?: 'N/A'); ?>
+                                    </p>
+                                    <?php if($enq['school_count'] > 1): ?>
+                                        <span class="bg-orange-50 text-orange-600 text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest w-fit">Applied to <?php echo $enq['school_count']; ?> Schools</span>
+                                    <?php endif; ?>
+                                </div>
                             </td>
                             <td class="py-6 px-4 text-right pr-8">
                                 <span class="text-[11px] font-extrabold text-slate-400 uppercase tracking-widest"><?php echo date('d M Y', strtotime($enq['created_at'])); ?></span>
@@ -277,32 +308,168 @@ $enquiries = $pdo->query(
         </div>
     </main>
 
+    </main>
+
+    <!-- Lead Details Modal -->
+    <div id="leadModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-2xl rounded-[40px] shadow-2xl overflow-hidden animate-fade-in-up">
+            <div class="bg-blue-600 p-8 flex items-center justify-between text-white">
+                <div>
+                    <span id="modalLeadId" class="text-[10px] font-black uppercase tracking-[0.3em] opacity-80 mb-2 block"></span>
+                    <h3 id="modalParentName" class="text-2xl font-black"></h3>
+                </div>
+                <button onclick="closeLeadModal()" class="w-12 h-12 bg-white/20 hover:bg-white/40 rounded-2xl flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
+                <div class="grid grid-cols-2 gap-8 mb-10">
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">General Information</h4>
+                        <div>
+                            <p class="text-[10px] font-black text-blue-600 uppercase mb-1">Child Details</p>
+                            <p id="modalChildInfo" class="text-sm font-bold text-slate-700"></p>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-blue-600 uppercase mb-1">Previous School</p>
+                            <p id="modalExistingSchool" class="text-sm font-bold text-slate-700"></p>
+                        </div>
+                    </div>
+                    <div class="space-y-6">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Contact Details</h4>
+                        <div>
+                            <p class="text-[10px] font-black text-blue-600 uppercase mb-1">Phone / WhatsApp</p>
+                            <p id="modalPhone" class="text-sm font-black text-slate-900"></p>
+                            <a id="modalWhatsappSendList" href="#" target="_blank" class="mt-2 inline-flex items-center gap-2 bg-[#25D366] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-green-500/20">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> Send List
+                            </a>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-blue-600 uppercase mb-1">Email Address</p>
+                            <p id="modalEmail" class="text-sm font-bold text-slate-700"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 pt-8">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Applied Schools & Follow-ups</h4>
+                    <div id="modalSchoolsList" class="space-y-4">
+                        <!-- Schools will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Sidebar Toggle Logic
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const overlay = document.getElementById('sidebar-overlay');
+        const leadModal = document.getElementById('leadModal');
 
         function toggleSidebar() {
             sidebar.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
-            setTimeout(() => {
-                overlay.classList.toggle('opacity-0');
-            }, 10);
+            setTimeout(() => { overlay.classList.toggle('opacity-0'); }, 10);
         }
 
         sidebarToggle.addEventListener('click', toggleSidebar);
         overlay.addEventListener('click', toggleSidebar);
 
-        // Search Logic
+        function openLeadDetails(lead) {
+            document.getElementById('modalLeadId').innerText = 'Lead ID ' + lead.lead_id;
+            document.getElementById('modalParentName').innerText = lead.parent_name;
+            document.getElementById('modalChildInfo').innerText = lead.child_name + ' (Class: ' + lead.child_class + ')';
+            document.getElementById('modalExistingSchool').innerText = lead.existing_school || 'N/A';
+            document.getElementById('modalPhone').innerText = lead.mobile;
+            document.getElementById('modalEmail').innerText = lead.email;
+
+            const container = document.getElementById('modalSchoolsList');
+            container.innerHTML = '';
+            
+            const mappings = lead.mapping_details ? lead.mapping_details.split('|||') : [];
+            const schoolNames = [];
+            
+            mappings.forEach(m => {
+                const [schoolId, schoolName, status, notes] = m.split('::');
+                schoolNames.push(schoolName);
+                const div = document.createElement('div');
+                div.className = 'bg-slate-50 p-6 rounded-3xl border border-slate-100 group';
+                div.innerHTML = `
+                    <form method="POST" class="space-y-4">
+                        <input type="hidden" name="enquiry_id" value="${lead.id}">
+                        <input type="hidden" name="school_id" value="${schoolId}">
+                        <input type="hidden" name="update_followup" value="1">
+                        
+                <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-black text-slate-900 mb-1">${schoolName}</p>
+                                <span class="text-[9px] font-black uppercase tracking-widest ${status === 'admission_done' ? 'text-green-600' : (status === 'doc_required' ? 'text-blue-600' : (status === 'rejected' ? 'text-red-500' : 'text-orange-500'))}">${status.replace('_', ' ')}</span>
+                            </div>
+                             <div class="flex gap-2">
+                                  <a href="https://wa.me/${lead.mobile.replace(/\D/g,'')}?text=${encodeURIComponent(`Hi ${lead.parent_name}, this is regarding your application for ${lead.child_name} at ${schoolName}. The school requires certain documents (MarkSheet, Birth Certificate, Aadhaar) to move forward. Please share them here.`)}" target="_blank" class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all shadow-sm" title="Request Documents"><i class="fa-solid fa-file-invoice text-lg"></i></a>
+                                  <a href="https://wa.me/${lead.mobile.replace(/\D/g,'')}" target="_blank" class="w-10 h-10 bg-green-50 text-green-600 rounded-xl flex items-center justify-center hover:bg-green-600 hover:text-white transition-all shadow-sm" title="Chat with Parent"><i class="fa-brands fa-whatsapp text-lg"></i></a>
+                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">STATUS</label>
+                                <select name="admission_status" class="w-full bg-white border-slate-200 rounded-xl text-xs font-bold text-slate-700">
+                                    <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending / Called</option>
+                                    <option value="doc_required" ${status === 'doc_required' ? 'selected' : ''}>Documentation Required</option>
+                                    <option value="admission_done" ${status === 'admission_done' ? 'selected' : ''}>Admission Confirmed</option>
+                                    <option value="rejected" ${status === 'rejected' ? 'selected' : ''}>Rejected / Not Interested</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-2 block">FOLLOW-UP NOTES</label>
+                                <input type="text" name="follow_up_notes" value="${notes || ''}" placeholder="Enter notes..." class="w-full bg-white border-slate-200 rounded-xl text-xs font-bold text-slate-700">
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-[#1B2559] text-white text-[10px] font-black py-2 rounded-xl uppercase tracking-widest hover:bg-blue-600 transition-all opacity-0 group-hover:opacity-100 shadow-lg shadow-blue-500/10">Update Follow-up</button>
+                    </form>
+                `;
+                container.appendChild(div);
+            });
+ 
+            // Update WhatsApp Link for sending applied list
+            const schoolsList = schoolNames.join(', ');
+            const waMessage = `Hi ${lead.parent_name},\n\nYou have successfully applied to the following schools through MySchoolDesk:\n\n${schoolsList}\n\nLead ID: ${lead.lead_id}\n\nOur team will contact you shortly to schedule visits. Contact us if you have any questions!`;
+            const waUrl = `https://wa.me/${lead.mobile.replace(/\D/g,'')}?text=${encodeURIComponent(waMessage)}`;
+            document.getElementById('modalWhatsappSendList').setAttribute('href', waUrl);
+
+            leadModal.classList.remove('hidden');
+            leadModal.classList.add('flex');
+            overlay.classList.remove('hidden');
+        }
+
+        function closeLeadModal() {
+            leadModal.classList.add('hidden');
+            leadModal.classList.remove('flex');
+            if(window.innerWidth < 1024) toggleSidebar(); 
+            else overlay.classList.add('hidden');
+        }
+
         function filterEnquiries() {
             const query = document.getElementById('enquirySearch').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value.toLowerCase();
             const rows = document.querySelectorAll('#enquiryTableBody tr');
             
             rows.forEach(row => {
-                if (row.cells.length < 2) return;
                 const text = row.innerText.toLowerCase();
-                if (text.includes(query)) {
+                const matchesSearch = text.includes(query);
+                
+                let matchesStatus = true;
+                if(status === 'multi') {
+                    matchesStatus = text.includes('applied to') && text.includes('schools');
+                } else if(status) {
+                    matchesStatus = text.includes(status.replace('_', ' '));
+                }
+
+                if (matchesSearch && matchesStatus) {
                     row.style.display = '';
                 } else {
                     row.style.display = 'none';

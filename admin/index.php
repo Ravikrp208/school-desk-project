@@ -21,9 +21,11 @@ $platformRevenue = "$14.2k"; // Mock value for UI matching
 $unreadNotifsCount = (int)$pdo->query("SELECT COUNT(*) FROM notifications WHERE is_read = 0")->fetchColumn();
 $recentNotifs = $pdo->query("SELECT * FROM notifications WHERE is_read = 0 ORDER BY created_at DESC LIMIT 5")->fetchAll();
 
-// Fetch recent leads
+// Fetch recent leads with correct status logic
 $recentEnquiries = $pdo->query(
-    "SELECT e.*, GROUP_CONCAT(CONCAT(s.name, ' (', esm.admission_status, ')') SEPARATOR ' | ') as school_details 
+    "SELECT e.*, 
+            GROUP_CONCAT(CONCAT(s.name, ' (', esm.admission_status, ')') SEPARATOR ' | ') as school_details,
+            COUNT(esm.school_id) as school_count
      FROM enquiries e 
      LEFT JOIN enquiry_school_mapping esm ON e.id = esm.enquiry_id 
      LEFT JOIN schools s ON esm.school_id = s.id 
@@ -63,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['sch
             }
 
             // Update school status and associate with the user
-            $updateStmt = $pdo->prepare("UPDATE schools SET status='approved', user_id=:user_id WHERE id=:id");
+            $updateStmt = $pdo->prepare("UPDATE schools SET status='approved', user_id=:user_id, is_verified=1 WHERE id=:id");
             $updateStmt->execute(['user_id' => $userId, 'id' => $schoolId]);
 
             // Send Credentials via PHPMailer
@@ -145,6 +147,9 @@ unset($_SESSION['message'], $_SESSION['error']);
             </a>
             <a href="school_profile.php" class="flex items-center gap-4 nav-item px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
                 <i class="fa-solid fa-user-graduate text-lg"></i> School Profile
+            </a>
+            <a href="settings.php" class="flex items-center gap-4 <?php echo basename($_SERVER['PHP_SELF']) == 'settings.php' ? 'nav-item-active' : 'nav-item'; ?> px-4 py-3 hover:bg-gray-50 rounded-lg transition-all">
+                <i class="fa-solid fa-gear text-lg"></i> Global Settings
             </a>
             <a href="logout.php" class="flex items-center gap-4 nav-item px-4 py-3 hover:bg-red-50 hover:text-red-500 rounded-lg transition-all">
                 <i class="fa-solid fa-arrow-right-from-bracket text-lg"></i> Logout
@@ -339,26 +344,26 @@ unset($_SESSION['message'], $_SESSION['error']);
                                     <td class="py-6 px-4">
                                         <span class="text-sm font-bold text-gray-400"><?php echo htmlspecialchars(explode(' | ', $enquiry['school_details'])[0]); ?></span>
                                     </td>
-                                    <td class="py-6 px-4">
+                                    <td class="py-6 px-4 whitespace-nowrap">
                                         <?php if(str_contains($enquiry['school_details'], 'admission_done')): ?>
                                             <div class="flex items-center gap-2 bg-[#05CD99]/10 px-3 py-1.5 rounded-lg w-fit">
                                                 <div class="w-1.5 h-1.5 rounded-full bg-[#05CD99]"></div>
                                                 <span class="text-[10px] font-black uppercase text-[#05CD99] tracking-widest">Converted</span>
                                             </div>
-                                        <?php elseif(rand(0,1)): ?>
-                                            <div class="flex items-center gap-2 bg-[#4318FF] px-3 py-1.5 rounded-lg w-fit">
-                                                <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
-                                                <span class="text-[10px] font-black uppercase text-white tracking-widest">New Lead</span>
-                                            </div>
                                         <?php else: ?>
-                                            <div class="flex items-center gap-2 bg-orange-500 px-3 py-1.5 rounded-lg w-fit">
-                                                <div class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></div>
-                                                <span class="text-[10px] font-black uppercase text-white tracking-widest">Follow-up</span>
+                                            <div class="flex items-center gap-2 bg-orange-100 px-3 py-1.5 rounded-lg w-fit">
+                                                <div class="w-1.5 h-1.5 rounded-full bg-orange-500"></div>
+                                                <span class="text-[10px] font-black uppercase text-orange-600 tracking-widest">Pending</span>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if($enquiry['school_count'] > 1): ?>
+                                            <div class="mt-2 flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-lg w-fit">
+                                                <span class="text-[8px] font-black uppercase text-blue-600 tracking-widest">Multi-School (<?php echo $enquiry['school_count']; ?>)</span>
                                             </div>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-6 px-4 text-right">
-                                        <span class="text-xs font-bold text-gray-400"><?php echo rand(2, 59); ?>m ago</span>
+                                        <span class="text-xs font-bold text-gray-400"><?php echo time_elapsed_string($enquiry['created_at']); ?></span>
                                     </td>
                                 </tr>
                                 <?php endforeach; ?>

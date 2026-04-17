@@ -1,10 +1,11 @@
 <?php
 require_once 'config.php';
 
-function columnExists($pdo, $table, $column) {
+function columnExists($pdo, $table, $column)
+{
     try {
         $stmt = $pdo->query("SHOW COLUMNS FROM `$table` LIKE '$column'");
-        return (bool)$stmt->fetch();
+        return (bool) $stmt->fetch();
     } catch (Exception $e) {
         return false;
     }
